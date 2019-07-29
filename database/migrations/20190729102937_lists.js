@@ -1,13 +1,12 @@
 
 exports.up = function(knex, Promise) {
     return knex.schema.createTable('tasks', task => {
-        task.increments('task_id');
-        task.string('Task_name', 500).notNullable()
-        task.integer('assignee_id').references('userId').inTable('users')
-        task.boolean('completed').notNullable()
-        task.boolean('starred').notNullable()
+        task.increments();
+        task.string('task_name', 500).notNullable()
+        task.integer('assignee_id').references('id').inTable('users')
+        task.boolean('completed').notNullable().defaultTo(false)
+        task.boolean('starred').notNullable().defaultTo(false)
         task.timestamp('created_at').defaultTo(knex.fn.now());
-
     })
 };
 
