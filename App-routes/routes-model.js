@@ -5,6 +5,7 @@ module.exports = {
     getUsers,
     getTasks,
     findUserById,
+    findByUsername,
     findTaskById,
     addUser,
     addTask,
@@ -62,6 +63,10 @@ function getUsers() {
     return db('users')
 }
 
+
+function findByUsername(username) {
+    return db("users").where(username);
+  }
 
 async function addUser(user) {
     const [id] = await db("users").insert(user);

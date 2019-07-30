@@ -1,10 +1,11 @@
 const express = require('express');
-const bcrypt = require('bcrypt')
+const bcrypt = require('bcrypt');
+const token = require('../auth/token');
+
 const router = express.Router();
 const DB = require('./routes-model')
 
-
-
+// const { authenticate } = require('../auth/authenticate');
 
 router.get('/users', async (_, res) => {
     const getUsers = await DB.getUsers()
@@ -36,13 +37,19 @@ router.get('/users/:id', async (req, res) => {
     }
 });
 
-router.post('/users/register', async (req, res) => { 
+router.post('/users/register', async (req, res) => {
     try {
         const user = req.body
         const hash = bcrypt.hashSync(user.password, 10)
         user.password = hash
         await DB.addUser(user)
-        res.status(200).json({ message: `Welcome to the party ${user.username}` })
+            .then(user => {
+                const newToken = token.generateToken(user);
+                res.status(200).json({
+                    message1: `Welcome to the party ${user.username}`,
+                    message2: `This is your new token to use ${newToken}`
+                })
+            })
     } catch (error) {
         res.status(500).json(error)
     }
