@@ -5,9 +5,33 @@ const token = require('../auth/token');
 const router = express.Router();
 const DB = require('./routes-model')
 
-// const { authenticate } = require('../auth/authenticate');
+const { authenticate } = require('../auth/authenticate');
 
-router.get('/users', async (_, res) => {
+
+router.post('/users/login', async(req, res) =>{
+    try{
+        let {username, password} = req.body
+        await DB.findByUsername({username})
+        .first()
+        .then(user =>{
+            if(user && bcrypt.compareSync(password, user.password)){
+                const newToken = token.generateToken(user);
+                res.status(200).json(
+                    {
+                      message: `Welcome ${user.username}! This is you token`,
+                      newToken,
+                      roles: newToken.roles
+                    });
+            }else{
+                res.status(401).json({message:"Invalid Credentials"});
+            }
+        })  
+    }catch(error){
+        res.status(200).json(error)
+    }
+})
+
+router.get('/users', authenticate, async (_, res) => {
     const getUsers = await DB.getUsers()
     try {
         res.status(200).json(getUsers)
@@ -17,7 +41,7 @@ router.get('/users', async (_, res) => {
 });
 
 
-router.get('/users/assignments', async (_, res) => {
+router.get('/users/assignments', authenticate, async (_, res) => {
     const assignments = await DB.findTaskAssign()
     try {
         res.status(200).json(assignments)
@@ -27,7 +51,7 @@ router.get('/users/assignments', async (_, res) => {
 })
 
 
-router.get('/users/:id', async (req, res) => {
+router.get('/users/:id', authenticate, async (req, res) => {
     const { id } = req.params
     try {
         const user = await DB.findUserById(id)
@@ -55,7 +79,7 @@ router.post('/users/register', async (req, res) => {
     }
 })
 
-router.put('/users/:id', async (req, res) => {
+router.put('/users/:id', authenticate, async (req, res) => {
     try {
         const { id } = req.params
         const updateUser = req.body
@@ -78,7 +102,7 @@ router.delete('/users/:id', async (req, res) => {
 
 //// ===== TASKS ======   ENDPOINT ========////
 
-router.get('/tasks', async (_, res) => {
+router.get('/tasks', authenticate, async (_, res) => {
     const getUsers = await DB.getTasks()
     try {
         res.status(200).json(getUsers)
@@ -87,7 +111,7 @@ router.get('/tasks', async (_, res) => {
     }
 });
 
-router.get('/tasks/:id', async (req, res) => {
+router.get('/tasks/:id', authenticate, async (req, res) => {
     const { id } = req.params
     try {
         const task = await DB.findTaskById(id)
@@ -98,7 +122,7 @@ router.get('/tasks/:id', async (req, res) => {
 });
 
 
-router.post('/tasks/newtask', async (req, res) => {
+router.post('/tasks/newtask', authenticate, async (req, res) => {
     try {
         const { task_name } = await DB.addTask(req.body)
         res.status(200).json({ message: `New task --> ${task_name} added.` })
@@ -107,7 +131,7 @@ router.post('/tasks/newtask', async (req, res) => {
     }
 })
 
-router.put('/tasks/:id', async (req, res) => {
+router.put('/tasks/:id', authenticate, async (req, res) => {
     try {
         const { id } = req.params
         const updateTask = req.body
@@ -118,7 +142,7 @@ router.put('/tasks/:id', async (req, res) => {
     }
 })
 
-router.delete('/tasks/:id', async (req, res) => {
+router.delete('/tasks/:id', authenticate, async (req, res) => {
     try {
         const { id } = req.params
         await DB.removeTask(id)
