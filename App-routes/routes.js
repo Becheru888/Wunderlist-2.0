@@ -1,4 +1,5 @@
 const express = require('express');
+const bcrypt = require('bcrypt')
 const router = express.Router();
 const DB = require('./routes-model')
 
@@ -35,10 +36,13 @@ router.get('/users/:id', async (req, res) => {
     }
 });
 
-router.post('/users/register', async (req, res) => {
+router.post('/users/register', async (req, res) => { 
     try {
-        const { username } = await DB.addUser(req.body)
-        res.status(200).json({ message: `Welcome to the party ${username}` })
+        const user = req.body
+        const hash = bcrypt.hashSync(user.password, 10)
+        user.password = hash
+        await DB.addUser(user)
+        res.status(200).json({ message: `Welcome to the party ${user.username}` })
     } catch (error) {
         res.status(500).json(error)
     }
@@ -51,7 +55,7 @@ router.put('/users/:id', async (req, res) => {
         await DB.userUpdate(id, updateUser)
         res.status(200).json({ message: `User with the id ${id} was updated` })
     } catch (error) {
-        res.status(500).json('something')
+        res.status(500).json('Something went wrong')
     }
 })
 
