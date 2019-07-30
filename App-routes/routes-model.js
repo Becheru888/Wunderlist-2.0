@@ -4,7 +4,10 @@ module.exports = {
     findTaskAssign,
     getUsers,
     getTasks,
-    findById
+    findUserById,
+    findTaskById,
+    addUser,
+    addTask
 }
 
 //// ---- HELPERS FOR TASKS
@@ -17,7 +20,7 @@ function getTasks() {
 function findTaskAssign() {
     return db("users")
         .select("users.firstName", "tasks.task_name", "tasks.completed", "tasks.starred", "tasks.created_at")
-        .innerJoin("tasks", "users.userId", "tasks.assignee_id");
+        .innerJoin("tasks", "users.id", "tasks.assignee_id");
 }
 
 
@@ -29,15 +32,32 @@ function getUsers() {
     return db('users')
 }
 
-// async function addUser(user) {
-//     const [id] = await db("users").insert(user);
+function getTasks() {
+    return db('tasks')
+}
 
-//     return findById(id);
-//   }
+async function addUser(user) {
+    const [id] = await db("users").insert(user);
 
-function findById(id) {
+    return findById(id);
+  }
+
+  async function addTask(task) {
+    const [id] = await db("tasks").insert(task);
+
+    return findTaskById(id);
+  }
+
+function findUserById(id) {
     return db('users')
-      .select('id', 'username')
+      .select('id', 'firstName', 'lastName', 'username')
+      .where({id})
+      .first();
+  }
+
+  function findTaskById(id) {
+    return db('tasks')
+      .select('id', 'task_name', 'assignee_id')
       .where({id})
       .first();
   }

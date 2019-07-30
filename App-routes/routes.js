@@ -5,7 +5,7 @@ const DB = require('./routes-model')
 
 
 
-router.get('/users', async (req, res) => {
+router.get('/users', async (_, res) => {
     const getUsers = await DB.getUsers()
     try {
         res.status(200).json(getUsers)
@@ -15,15 +15,63 @@ router.get('/users', async (req, res) => {
 });
 
 
+router.get('/users/assignments', async(_, res) =>{
+    const assignments = await DB.findTaskAssign()
+    try{
+        res.status(200).json(assignments)
+    }catch(error){
+        res.status(500).json('Something went wrong')
+    }
+})
+
+
 router.get('/users/:id', async (req, res) => {
     const { id } = req.params
     try {
-        const user = await DB.findById(id)
+        const user = await DB.findUserById(id)
         res.status(200).json(user)
     } catch (error) {
         res.status(500).json('something')
     }
 });
+
+router.post('/users/register', async(req, res) =>{
+    try{
+       const {username} = await DB.addUser(req.body)
+       res.status(200).json({message:`Welcome to the party ${username}`})
+    }catch(error){
+        res.status(500).json(error)
+    }
+})
+
+router.get('/tasks', async (_, res) => {
+    const getUsers = await DB.getTasks()
+    try {
+        res.status(200).json(getUsers)
+    } catch (error) {
+        res.status(500).json(error)
+    }
+});
+
+router.get('/tasks/:id', async (req, res) => {
+    const { id } = req.params
+    try {
+        const task = await DB.findTaskById(id)
+        res.status(200).json(task)
+    } catch (error) {
+        res.status(500).json('something')
+    }
+});
+
+
+router.post('/tasks/newtask', async(req, res) =>{
+    try{
+       const {task_name} = await DB.addTask(req.body)
+       res.status(200).json({message:`New task --> ${task_name} added.`})
+    }catch(error){
+        res.status(500).json(error)
+    }
+})
 
 
 module.exports = router;
