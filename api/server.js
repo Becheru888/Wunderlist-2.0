@@ -1,8 +1,12 @@
 const express = require('express');
-const server = express();
+
+
 const cors = require('cors');
 const helmet = require('helmet');
-const app_routes = require('../app-routes/routes')
+
+const server = express();
+
+const app_routes = require('../app_routes/routes.js')
 
 
 server.use(helmet());
