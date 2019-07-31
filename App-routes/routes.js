@@ -52,12 +52,17 @@ router.get('/users/assignments', authenticate, async (_, res) => {
 
 
 router.get('/users/:id', authenticate, async (req, res) => {
-    const { id } = req.params
+   
     try {
+        const { id } = req.params
         const user = await DB.findUserById(id)
-        res.status(200).json(user)
+        if (parseInt(id) !== user.id){
+            res.status(500).json('The id does not exist')
+        }else{
+            res.status(200).json(user)
+        }
     } catch (error) {
-        res.status(500).json('something')
+        res.status(500).json('Something went wrong ar the id does not exist')
     }
 });
 
