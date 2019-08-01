@@ -36,7 +36,13 @@ router.get('/users', authenticate, async (_, res) => {
     try {
         res.status(200).json(getUsers)
     } catch (error) {
-        res.status(500).json(error)
+        res.status(500).json({
+            error: {
+                "type": "not_found",
+                "translation_key": "api_error_not_found",
+                "message": "The resource you requested could not be found."
+              }
+        })
     }
 });
 
@@ -46,7 +52,13 @@ router.get('/users/assignments', authenticate, async (_, res) => {
     try {
         res.status(200).json(assignments)
     } catch (error) {
-        res.status(500).json('Something went wrong')
+        res.status(500).json({
+            error: {
+                "type": "not_found",
+                "translation_key": "api_error_not_found",
+                "message": "The resource you requested could not be found."
+              }
+        })
     }
 })
 
@@ -62,7 +74,14 @@ router.get('/users/:id', authenticate, async (req, res) => {
             res.status(200).json(user)
         }
     } catch (error) {
-        res.status(500).json('Something went wrong ar the id does not exist')
+        res.status(400).json({
+            error: {
+              "type": "missing_parameter",
+              "translation_key": "api_error_missing_params",
+              "message": "Missing parameter or inexistent id.",
+              "list_id": "required can't be blank"
+            }
+          })
     }
 });
 
